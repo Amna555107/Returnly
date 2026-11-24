@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Manage your Returnly posts. View, update, and delete your lost and found item listings." />
+  <title>My Dashboard — Returnly</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <header class="navbar" id="navbar" role="banner">
+    <div class="container nav-inner">
+      <a href="index.html" class="nav-logo" aria-label="Returnly home">
+        <span class="logo-icon" aria-hidden="true">🔍</span>Returnly
+      </a>
+      <!-- Desktop nav links -->
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="index.html">Home</a>
+        <a href="lost.html">Lost Items</a>
+        <a href="found.html">Found Items</a>
+        <a href="dashboard.html" id="nav-dashboard-link" class="active" style="display:none">Dashboard</a>
+      </nav>
+      <div class="nav-actions">
+        <a href="post.html" class="btn btn-outline btn-sm">+ Post Item</a>
+        <a href="login.html" class="btn btn-primary btn-sm" id="nav-login-btn">Sign In</a>
+        <button class="btn btn-ghost btn-sm" id="nav-logout-btn" data-action="logout" style="display:none">Sign Out</button>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="nav-drawer">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <nav class="nav-drawer" id="nav-drawer" aria-label="Mobile navigation">
+    <a href="index.html">🏠 Home</a>
+    <a href="lost.html">🔍 Lost Items</a>
+    <a href="found.html">🎉 Found Items</a>
+    <a href="dashboard.html" id="drawer-dashboard" class="active" style="display:none">📋 Dashboard</a>
+    <hr />
+    <a href="post.html">✏️ Post an Item</a>
+    <a href="login.html" id="drawer-login">🔑 Sign In</a>
+    <a href="#" id="drawer-logout" data-action="logout" style="display:none">👋 Sign Out</a>
+  </nav>
+
+  <!-- PAGE HEADER -->
+  <div class="page-header" aria-label="Dashboard header">
+    <div class="container">
+      <h1>📋 My Dashboard</h1>
+      <p id="dash-welcome">Manage your lost and found posts.</p>
+    </div>
+  </div>
+
+  <!-- AUTH GATE -->
+  <div id="auth-gate" style="display:none;">
+    <div class="container">
+      <div class="empty-state" style="max-width:480px;margin:4rem auto;">
+        <div class="empty-icon">🔑</div>
+        <h3>Sign in to view your dashboard</h3>
+        <p>Your dashboard shows all the items you've posted and lets you manage them.</p>
+        <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem;">
+          <a href="login.html?redirect=dashboard.html" class="btn btn-primary">Sign In</a>
+          <a href="login.html#signup" class="btn btn-outline">Create Account</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD CONTENT -->
+  <main class="section" id="dash-content" style="display:none;" aria-label="Dashboard content">
+    <div class="container">
+
+      <!-- Summary cards -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:2.5rem;">
+        <div class="card" style="padding:1.25rem;text-align:center;">
+          <div style="font-size:2rem;font-weight:800;font-family:var(--font-head);color:var(--teal);" id="stat-total">—</div>
+          <div style="font-size:.85rem;color:var(--text-muted);margin-top:.25rem;">Total Posts</div>
+        </div>
+        <div class="card" style="padding:1.25rem;text-align:center;">
+          <div style="font-size:2rem;font-weight:800;font-family:var(--font-head);color:var(--orange-dark);" id="stat-open">—</div>
+          <div style="font-size:.85rem;color:var(--text-muted);margin-top:.25rem;">Open</div>
+        </div>
+        <div class="card" style="padding:1.25rem;text-align:center;">
+          <div style="font-size:2rem;font-weight:800;font-family:var(--font-head);color:#15803D;" id="stat-ret">—</div>
+          <div style="font-size:.85rem;color:var(--text-muted);margin-top:.25rem;">Returned 🎉</div>
+        </div>
+        <div class="card" style="padding:1.25rem;text-align:center;display:flex;align-items:center;justify-content:center;">
+          <a href="post.html" class="btn btn-primary btn-sm">+ New Post</a>
+        </div>
+      </div>
+
+      <!-- Posts list -->
+      <h2 style="margin-bottom:1.25rem;">Your Posts</h2>
+      <div id="dash-items" role="list" aria-label="Your posted items"></div>
+
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-logo">🔍 Returnly</div>
+          <p>A community lost-and-found platform built on kindness, trust, and the belief that most people are good.</p>
+        </div>
+        <div>
+          <h4>Browse</h4>
+          <ul>
+            <li><a href="lost.html">Lost Items</a></li>
+            <li><a href="found.html">Found Items</a></li>
+            <li><a href="post.html">Post an Item</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Account</h4>
+          <ul>
+            <li><a href="login.html">Sign In</a></li>
+            <li><a href="login.html#signup">Create Account</a></li>
+            <li><a href="dashboard.html">My Dashboard</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span class="current-year"></span> Returnly. Made with ❤️ for communities.</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Confirm Delete Modal -->
+  <div class="modal-overlay" id="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+    <div class="modal" style="max-width:420px;">
+      <div class="modal-header">
+        <h2 id="confirm-title" style="font-size:1.15rem;">Delete this post?</h2>
+        <button class="modal-close" id="confirm-close" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="color:var(--text-muted);">Are you sure? This can't be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="confirm-cancel">Cancel</button>
+        <button class="btn btn-danger" id="confirm-delete">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    /* ── Dashboard logic ─────────────────────────────────── */
+    let currentDashboardItems = {};
+    let currentUser = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const { data: { session } } = await sb.auth.getSession();
+      const user = session?.user || null;
+      currentUser = user;
+
+      if (!user) {
+        document.getElementById('auth-gate').style.display = '';
+        return;
+      }
+
+      document.getElementById('dash-content').style.display = '';
+
+      // Welcome message
+      const name = user.user_metadata?.full_name?.split(' ')[0] || 'there';
+      document.getElementById('dash-welcome').textContent = `Welcome back, ${name}! Manage your lost and found posts below.`;
+
+      await loadDashboard(user);
+    });
+
+    // ── Confirm delete modal ──
+    let pendingDeleteId   = null;
+    let pendingDeleteUrl  = null;
+
+    document.getElementById('confirm-close').addEventListener('click', closeConfirm);
+    document.getElementById('confirm-cancel').addEventListener('click', closeConfirm);
+
+    function openConfirm(id, imageUrl) {
+      pendingDeleteId  = id;
+      pendingDeleteUrl = imageUrl;
+      const confirmBtn = document.getElementById('confirm-delete');
+      if (confirmBtn) {
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = 'Delete';
+      }
+      document.getElementById('confirm-modal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeConfirm() {
+      document.getElementById('confirm-modal').classList.remove('open');
+      document.body.style.overflow = '';
+      pendingDeleteId  = null;
+      pendingDeleteUrl = null;
+    }
+
+    document.getElementById('confirm-delete').addEventListener('click', async () => {
+      if (!pendingDeleteId) return;
+      await deleteItem(pendingDeleteId, pendingDeleteUrl);
+      closeConfirm();
+    });
+
+    // ── Load dashboard data ──
+    async function loadDashboard(user) {
+      currentUser = user;
+      currentDashboardItems = {};
+      const container = document.getElementById('dash-items');
+      container.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><p>Loading your posts…</p></div>`;
+
+      const { data: items, error } = await sb
+        .from('items')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        container.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><h3>Error loading posts</h3><p>${escapeHtml(error.message)}</p></div>`;
+        return;
+      }
+
+      // Update stats
+      document.getElementById('stat-total').textContent = items.length;
+      document.getElementById('stat-open').textContent  = items.filter(i => i.status === 'open').length;
+      document.getElementById('stat-ret').textContent   = items.filter(i => i.status === 'returned').length;
+
+      if (!items.length) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">📭</div>
+            <h3>No posts yet</h3>
+            <p>You haven't posted any lost or found items yet. It only takes 2 minutes!</p>
+            <a href="post.html" class="btn btn-primary mt-2">Post Your First Item</a>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = '';
+      items.forEach(item => {
+        currentDashboardItems[item.id] = item;
+        const el = buildDashItem(item, user);
+        container.appendChild(el);
+      });
+    }
+
+    // ── Build dashboard item row ──
+    function buildDashItem(item, user) {
+      const isLost = item.type === 'lost';
+      const icon   = CATEGORY_ICONS[item.category] || '📦';
+      const date   = new Date(item.item_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const created = new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const isReturned = item.status === 'returned';
+
+      const div = document.createElement('div');
+      div.className = 'dash-item';
+      div.setAttribute('role', 'listitem');
+      div.dataset.id = item.id;
+
+      const hasValidImg = !!(item.image_url && typeof item.image_url === 'string' && item.image_url.trim().length > 0);
+      const imgMarkup = hasValidImg
+        ? `<img class="dash-item-img" src="${escapeHtml(item.image_url.trim())}" alt="${escapeHtml(item.title)}" loading="lazy" onerror="this.onerror=null; this.replaceWith(Object.assign(document.createElement('div'), {className:'dash-item-placeholder', textContent:'${icon}'}));" />`
+        : `<div class="dash-item-placeholder" aria-hidden="true">${icon}</div>`;
+
+      div.innerHTML = `
+        ${imgMarkup}
+        <div class="dash-item-info" style="flex:1;">
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.35rem;">
+            <span class="badge badge-${item.type}">${isLost ? '🔍 Lost' : '🎉 Found'}</span>
+            <span class="badge ${isReturned ? 'badge-returned' : 'badge-open'}">${isReturned ? '✅ Returned' : '🔵 Open'}</span>
+          </div>
+          <h4>${escapeHtml(item.title)}</h4>
+          <p>📍 ${escapeHtml(item.area)} · ${icon} ${escapeHtml(item.category)} · 📅 ${date}</p>
+          <p style="font-size:.8rem;color:var(--text-muted);margin-top:.2rem;">Posted ${created}</p>
+          <div class="dash-item-actions">
+            <button class="btn btn-outline btn-sm" onclick="editDashItem('${item.id}')">
+              ✏️ Edit
+            </button>
+            ${!isReturned ? `
+              <button class="btn btn-primary btn-sm" id="btn-return-${item.id}" onclick="markReturned('${item.id}')">
+                ✅ Mark as Returned
+              </button>` : ''
+            }
+            <button class="btn btn-danger btn-sm" onclick="openConfirm('${item.id}', '${escapeHtml(item.image_url || '')}')">
+              🗑️ Delete
+            </button>
+          </div>
+        </div>
+      `;
+
+      return div;
+    }
+
+    // ── Edit item ──
+    function editDashItem(id) {
+      const item = currentDashboardItems[id];
+      if (item) {
+        openEditModal(item, async () => {
+          const { data: { session } } = await sb.auth.getSession();
+          if (session?.user) await loadDashboard(session.user);
+        });
+      }
+    }
+
+    // ── Mark as returned ──
+    async function markReturned(id) {
+      const btn = document.getElementById(`btn-return-${id}`);
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = '⏳ Updating…';
+      }
+
+      const { error } = await sb
+        .from('items')
+        .update({ status: 'returned' })
+        .eq('id', id);
+
+      if (error) {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = '✅ Mark as Returned';
+        }
+        showToast('Could not update status. Please try again: ' + error.message, 'error');
+        return;
+      }
+
+      showToast('Marked as returned! 🎉 That\'s a happy reunion.', 'success');
+
+      // Refresh dashboard
+      const { data: { session } } = await sb.auth.getSession();
+      await loadDashboard(session.user);
+    }
+
+    // ── Delete item ──
+    async function deleteItem(id, imageUrl) {
+      const confirmBtn = document.getElementById('confirm-delete');
+      if (confirmBtn) {
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = '⏳ Deleting…';
+      }
+
+      // Delete the photo from storage first (best effort)
+      if (imageUrl) {
+        try {
+          const path = storagePathFromUrl(imageUrl);
+          if (path) {
+            await sb.storage.from('item-photos').remove([path]);
+          }
+        } catch (_) { /* ignore storage deletion failure */ }
+      }
+
+      const { error } = await sb.from('items').delete().eq('id', id);
+
+      if (confirmBtn) {
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = 'Delete';
+      }
+
+      if (error) {
+        showToast('Could not delete post. Please try again: ' + error.message, 'error');
+        return;
+      }
+
+      showToast('Post deleted. 🗑️', 'default');
+      const { data: { session } } = await sb.auth.getSession();
+      await loadDashboard(session.user);
+    }
+  </script>
+</body>
+</html>

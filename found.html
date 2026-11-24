@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Browse found items in your community. See if something you lost has been found on Returnly." />
+  <title>Found Items — Returnly</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <header class="navbar" id="navbar" role="banner">
+    <div class="container nav-inner">
+      <a href="index.html" class="nav-logo" aria-label="Returnly home">
+        <span class="logo-icon" aria-hidden="true">🔍</span>Returnly
+      </a>
+      <!-- Desktop nav links -->
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="index.html">Home</a>
+        <a href="lost.html">Lost Items</a>
+        <a href="found.html" class="active">Found Items</a>
+        <a href="dashboard.html" id="nav-dashboard-link" style="display:none">Dashboard</a>
+      </nav>
+      <div class="nav-actions">
+        <a href="post.html" class="btn btn-outline btn-sm">+ Post Item</a>
+        <a href="login.html" class="btn btn-primary btn-sm" id="nav-login-btn">Sign In</a>
+        <button class="btn btn-ghost btn-sm" id="nav-logout-btn" data-action="logout" style="display:none">Sign Out</button>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="nav-drawer">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <nav class="nav-drawer" id="nav-drawer" aria-label="Mobile navigation">
+    <a href="index.html">🏠 Home</a>
+    <a href="lost.html">🔍 Lost Items</a>
+    <a href="found.html">🎉 Found Items</a>
+    <a href="dashboard.html" id="drawer-dashboard" style="display:none">📋 Dashboard</a>
+    <hr />
+    <a href="post.html">✏️ Post an Item</a>
+    <a href="login.html" id="drawer-login">🔑 Sign In</a>
+    <a href="#" id="drawer-logout" data-action="logout" style="display:none">👋 Sign Out</a>
+  </nav>
+
+  <!-- PAGE HEADER -->
+  <div class="page-header" role="banner" aria-label="Found items page header" style="background:linear-gradient(135deg,#0A5E57 0%,#0F766E 100%);">
+    <div class="container">
+      <h1>🎉 Found Items</h1>
+      <p>Someone found something! Check below — your lost item might already be waiting for you.</p>
+    </div>
+  </div>
+
+  <main class="section" id="main-content">
+    <div class="container">
+
+      <!-- Note: a found post does NOT need a matching lost report -->
+      <div class="card reveal" style="padding:1rem 1.25rem;margin-bottom:1.75rem;display:flex;gap:.75rem;align-items:flex-start;border-left:4px solid var(--teal);">
+        <span style="font-size:1.3rem;flex-shrink:0;" aria-hidden="true">💡</span>
+        <p style="font-size:.88rem;color:var(--text-muted);">
+          Anyone can post a found item — you don't need a matching lost report. If you found something
+          and want to return it, just post it here!
+        </p>
+      </div>
+
+      <!-- Filters bar -->
+      <div class="filters-bar" role="search" aria-label="Filter found items">
+        <div class="search-wrap">
+          <span class="search-icon" aria-hidden="true">🔍</span>
+          <input type="search" id="search-input" placeholder="Search by name, area, description…" aria-label="Search found items" autocomplete="off" />
+        </div>
+        <select class="filter-select" id="category-filter" aria-label="Filter by category">
+          <option value="">All Categories</option>
+          <option>Pets</option>
+          <option>Phone</option>
+          <option>Wallet</option>
+          <option>Bag</option>
+          <option>Keys</option>
+          <option>Documents</option>
+          <option>Other</option>
+        </select>
+        <input type="text" class="filter-select" id="area-filter" placeholder="Filter by area…" aria-label="Filter by area" style="min-width:160px;" />
+        <button class="btn btn-ghost btn-sm" id="clear-filters">✕ Clear</button>
+      </div>
+
+      <p id="results-count" style="font-size:.88rem;color:var(--text-muted);margin-bottom:1.25rem;" aria-live="polite"></p>
+
+      <!-- Items grid -->
+      <div class="grid-auto" id="items-grid" role="list" aria-label="Found items"></div>
+
+    </div>
+  </main>
+
+  <!-- CTA -->
+  <section class="section-sm" aria-label="Post a found item">
+    <div class="container text-center">
+      <div class="card reveal" style="padding:2.5rem;max-width:580px;margin:0 auto;">
+        <div style="font-size:2.5rem;margin-bottom:1rem;" aria-hidden="true">🎒</div>
+        <h3>Found something?</h3>
+        <p style="color:var(--text-muted);margin:.6rem 0 1.25rem;">Post it here so the owner can find it. It only takes 2 minutes.</p>
+        <a href="post.html?type=found" class="btn btn-primary">Post a Found Item</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-logo">🔍 Returnly</div>
+          <p>A community lost-and-found platform built on kindness, trust, and the belief that most people are good.</p>
+        </div>
+        <div>
+          <h4>Browse</h4>
+          <ul>
+            <li><a href="lost.html">Lost Items</a></li>
+            <li><a href="found.html">Found Items</a></li>
+            <li><a href="post.html">Post an Item</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Account</h4>
+          <ul>
+            <li><a href="login.html">Sign In</a></li>
+            <li><a href="login.html#signup">Create Account</a></li>
+            <li><a href="dashboard.html">My Dashboard</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span class="current-year"></span> Returnly. Made with ❤️ for communities.</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- DETAIL MODAL -->
+  <div class="modal-overlay" id="item-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <span id="modal-badge" class="badge"></span>
+          <h2 id="modal-title" style="margin-top:.4rem;font-size:1.3rem;"></h2>
+          <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.5rem;">
+            <span id="modal-category" style="font-size:.88rem;color:var(--text-muted);"></span>
+          </div>
+        </div>
+        <button class="modal-close" id="modal-close" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <img id="modal-img" class="modal-img" src="" alt="" />
+        <div class="modal-detail"><span class="modal-detail-icon">📍</span><span id="modal-area"></span></div>
+        <div class="modal-detail"><span class="modal-detail-icon">📅</span><span id="modal-date"></span></div>
+        <div class="modal-detail" style="margin-top:.75rem;align-items:flex-start;">
+          <span class="modal-detail-icon">📝</span>
+          <p id="modal-desc" style="line-height:1.7;"></p>
+        </div>
+        <div id="modal-contact-wrap" style="margin-top:1.25rem;padding:1rem;background:var(--bg);border-radius:var(--radius-md);">
+          <strong style="font-size:.85rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;">Contact</strong>
+          <div id="modal-contact-info" style="margin-top:.5rem;display:none;"></div>
+          <div id="modal-login-prompt" style="margin-top:.5rem;">
+            <p style="font-size:.9rem;color:var(--text-muted);"><a href="login.html" style="color:var(--teal);font-weight:600;">Sign in</a> to view contact information.</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" style="display:flex;justify-content:space-between;align-items:center;">
+        <div id="modal-owner-actions" style="display:none;gap:.5rem;align-items:center;">
+          <button class="btn btn-outline btn-sm" id="modal-edit-btn">✏️ Edit</button>
+          <button class="btn btn-danger btn-sm" id="modal-delete-btn">🗑️ Delete</button>
+        </div>
+        <button class="btn btn-ghost" onclick="closeModal()" style="margin-left:auto;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const grid          = document.getElementById('items-grid');
+      const countEl       = document.getElementById('results-count');
+      const searchInput   = document.getElementById('search-input');
+      const categoryFilter = document.getElementById('category-filter');
+      const areaFilter    = document.getElementById('area-filter');
+      const clearBtn      = document.getElementById('clear-filters');
+
+      async function loadItems() {
+        showLoading(grid, 'Looking for found items…');
+        const items = await fetchItems({
+          type:     'found',
+          search:   searchInput.value.trim(),
+          category: categoryFilter.value,
+          area:     areaFilter.value.trim(),
+        });
+        renderItems(items, grid, 'No found items match your search. Try different filters.');
+        countEl.textContent = items.length
+          ? `Showing ${items.length} found item${items.length !== 1 ? 's' : ''}`
+          : '';
+      }
+
+      let timer;
+      const debounce = () => { clearTimeout(timer); timer = setTimeout(loadItems, 350); };
+      searchInput.addEventListener('input', debounce);
+      categoryFilter.addEventListener('change', loadItems);
+      areaFilter.addEventListener('input', debounce);
+      clearBtn.addEventListener('click', () => {
+        searchInput.value = ''; categoryFilter.value = ''; areaFilter.value = '';
+        loadItems();
+      });
+
+      await loadItems();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Post a lost or found item on Returnly. Help your community reconnect with lost belongings." />
+  <title>Post an Item — Returnly</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <link rel="stylesheet" href="css/style.css" />
+
+  <style>
+    .post-layout {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 2rem;
+      align-items: flex-start;
+    }
+    @media (max-width: 860px) {
+      .post-layout { grid-template-columns: 1fr; }
+      .post-sidebar { order: -1; }
+    }
+
+    .select-wrapper {
+      position: relative;
+    }
+    .select-wrapper::after {
+      content: '▾';
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: var(--text-muted);
+      font-size: .85rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <header class="navbar" id="navbar" role="banner">
+    <div class="container nav-inner">
+      <a href="index.html" class="nav-logo" aria-label="Returnly home">
+        <span class="logo-icon" aria-hidden="true">🔍</span>Returnly
+      </a>
+      <!-- Desktop nav links -->
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="index.html">Home</a>
+        <a href="lost.html">Lost Items</a>
+        <a href="found.html">Found Items</a>
+        <a href="dashboard.html" id="nav-dashboard-link" style="display:none">Dashboard</a>
+      </nav>
+      <div class="nav-actions">
+        <a href="post.html" class="btn btn-outline btn-sm">+ Post Item</a>
+        <a href="login.html" class="btn btn-primary btn-sm" id="nav-login-btn">Sign In</a>
+        <button class="btn btn-ghost btn-sm" id="nav-logout-btn" data-action="logout" style="display:none">Sign Out</button>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="nav-drawer">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <nav class="nav-drawer" id="nav-drawer" aria-label="Mobile navigation">
+    <a href="index.html">🏠 Home</a>
+    <a href="lost.html">🔍 Lost Items</a>
+    <a href="found.html">🎉 Found Items</a>
+    <a href="dashboard.html" id="drawer-dashboard" style="display:none">📋 Dashboard</a>
+    <hr />
+    <a href="post.html">✏️ Post an Item</a>
+    <a href="login.html" id="drawer-login">🔑 Sign In</a>
+    <a href="#" id="drawer-logout" data-action="logout" style="display:none">👋 Sign Out</a>
+  </nav>
+
+  <!-- PAGE HEADER -->
+  <div class="page-header" aria-label="Post an item">
+    <div class="container">
+      <h1>✏️ Post an Item</h1>
+      <p>Lost something, or found something? Share the details below — it only takes a minute.</p>
+    </div>
+  </div>
+
+  <!-- AUTH GATE: shown if not logged in -->
+  <div id="auth-gate" style="display:none;">
+    <div class="container">
+      <div class="empty-state" style="max-width:480px;margin:4rem auto;">
+        <div class="empty-icon">🔑</div>
+        <h3>Sign in to post</h3>
+        <p>You need a free Returnly account to post lost or found items. It only takes 30 seconds.</p>
+        <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem;">
+          <a href="login.html?redirect=post.html" class="btn btn-primary">Sign In</a>
+          <a href="login.html#signup" class="btn btn-outline">Create Account</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN FORM: shown when logged in -->
+  <main class="section" id="post-form-section" style="display:none;" aria-label="Post item form">
+    <div class="container">
+      <div class="post-layout">
+
+        <!-- ── FORM ── -->
+        <div>
+          <form id="post-form" novalidate>
+
+            <!-- Type toggle -->
+            <div class="form-group">
+              <label class="form-label">Item type <span class="req" aria-hidden="true">*</span></label>
+              <div class="type-toggle" role="group" aria-label="Select lost or found">
+                <input type="radio" name="item-type" id="type-lost" value="lost" checked />
+                <label class="lost-label" for="type-lost">🔍 I Lost This</label>
+                <input type="radio" name="item-type" id="type-found" value="found" />
+                <label class="found-label" for="type-found">🎉 I Found This</label>
+              </div>
+            </div>
+
+            <!-- Title -->
+            <div class="form-group">
+              <label class="form-label" for="item-title">Item name <span class="req" aria-hidden="true">*</span></label>
+              <input class="form-input" type="text" id="item-title" placeholder="e.g. Black iPhone 14, Tabby cat named Berbal, Blue Fjällräven backpack…" maxlength="100" required />
+              <span class="form-error" id="title-err" role="alert"></span>
+            </div>
+
+            <!-- Category -->
+            <div class="form-group">
+              <label class="form-label" for="item-category">Category <span class="req" aria-hidden="true">*</span></label>
+              <div class="select-wrapper">
+                <select class="form-select" id="item-category" required>
+                  <option value="">Select a category…</option>
+                  <option value="Pets">🐾 Pets</option>
+                  <option value="Phone">📱 Phone</option>
+                  <option value="Wallet">👛 Wallet</option>
+                  <option value="Bag">🎒 Bag</option>
+                  <option value="Keys">🔑 Keys</option>
+                  <option value="Documents">📄 Documents</option>
+                  <option value="Other">📦 Other</option>
+                </select>
+              </div>
+              <span class="form-error" id="category-err" role="alert"></span>
+            </div>
+
+            <!-- Description -->
+            <div class="form-group">
+              <label class="form-label" for="item-description">Description</label>
+              <textarea class="form-textarea" id="item-description" placeholder="Describe the item — colour, brand, any distinctive features that would help identification…" maxlength="800"></textarea>
+              <span class="form-hint">Max 800 characters. The more detail, the better the chance of a match.</span>
+            </div>
+
+            <!-- Photo upload -->
+            <div class="form-group">
+              <label class="form-label" for="item-photo">Photo</label>
+              <div class="photo-upload-area" id="upload-area" role="button" tabindex="0" aria-label="Upload a photo">
+                <input type="file" id="item-photo" accept="image/*" aria-hidden="true" />
+                <div id="upload-placeholder">
+                  <div style="font-size:2.25rem;margin-bottom:.5rem;" aria-hidden="true">📸</div>
+                  <p style="font-weight:600;margin-bottom:.25rem;">Click or drag a photo here</p>
+                  <p style="font-size:.82rem;color:var(--text-muted);">JPG, PNG or WEBP · Max 5 MB</p>
+                </div>
+                <img id="photo-preview" class="photo-preview" src="" alt="Photo preview" />
+                <button type="button" id="remove-photo" style="display:none;margin-top:.5rem;" class="btn btn-ghost btn-sm">✕ Remove photo</button>
+              </div>
+              <span class="form-hint" id="photo-hint">A photo dramatically increases the chance of a match.</span>
+              <span class="form-error" id="photo-err" role="alert"></span>
+            </div>
+
+            <!-- Area (neighbourhood only — no full address) -->
+            <div class="form-group">
+              <label class="form-label" for="item-area">
+                Area / Neighbourhood <span class="req" aria-hidden="true">*</span>
+              </label>
+              <input class="form-input" type="text" id="item-area" placeholder="e.g. Shoreditch, Brooklyn Heights, Fitzroy…" maxlength="80" required />
+              <span class="form-hint">🛡️ Neighbourhood or district only — never a full address. Your safety matters.</span>
+              <span class="form-error" id="area-err" role="alert"></span>
+            </div>
+
+            <!-- Date -->
+            <div class="form-group">
+              <label class="form-label" for="item-date">Date lost / found <span class="req" aria-hidden="true">*</span></label>
+              <input class="form-input" type="date" id="item-date" required />
+              <span class="form-error" id="date-err" role="alert"></span>
+            </div>
+
+            <!-- Contact method -->
+            <div class="form-group">
+              <label class="form-label">Contact method <span class="req" aria-hidden="true">*</span></label>
+              <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:.75rem;" role="group" aria-label="Select contact method">
+                <label class="contact-method-label" style="display:flex;align-items:center;gap:.45rem;cursor:pointer;">
+                  <input type="radio" name="contact-method" value="email" checked style="accent-color:var(--teal);" />
+                  ✉️ Email
+                </label>
+                <label class="contact-method-label" style="display:flex;align-items:center;gap:.45rem;cursor:pointer;">
+                  <input type="radio" name="contact-method" value="phone" style="accent-color:var(--teal);" />
+                  📞 Phone
+                </label>
+                <label class="contact-method-label" style="display:flex;align-items:center;gap:.45rem;cursor:pointer;">
+                  <input type="radio" name="contact-method" value="whatsapp" style="accent-color:var(--teal);" />
+                  💬 WhatsApp
+                </label>
+              </div>
+              <input class="form-input" type="text" id="contact-value" placeholder="Enter your email or phone number" required />
+              <span class="form-hint">Only visible to signed-in Returnly users.</span>
+              <span class="form-error" id="contact-err" role="alert"></span>
+            </div>
+
+            <!-- Global error -->
+            <div id="form-error-global" role="alert" style="display:none;padding:.75rem 1rem;background:rgba(239,68,68,.08);border-radius:var(--radius-sm);color:#DC2626;font-size:.9rem;margin-bottom:1rem;border:1px solid rgba(239,68,68,.2);"></div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn btn-primary btn-lg" id="submit-btn" style="width:100%;justify-content:center;">
+              🚀 Post Item
+            </button>
+
+          </form>
+        </div>
+
+        <!-- ── SIDEBAR ── -->
+        <aside class="post-sidebar">
+          <div class="card" style="padding:1.5rem;position:sticky;top:calc(var(--nav-h) + 1rem);">
+            <h3 style="margin-bottom:1rem;">📋 Posting tips</h3>
+            <ul style="display:flex;flex-direction:column;gap:.85rem;">
+              <li style="display:flex;gap:.6rem;font-size:.88rem;">
+                <span aria-hidden="true">📸</span>
+                <span><strong>Add a photo.</strong> Items with photos get 5× more responses.</span>
+              </li>
+              <li style="display:flex;gap:.6rem;font-size:.88rem;">
+                <span aria-hidden="true">📍</span>
+                <span><strong>Area only.</strong> Never post your home address — a neighbourhood is enough.</span>
+              </li>
+              <li style="display:flex;gap:.6rem;font-size:.88rem;">
+                <span aria-hidden="true">🔍</span>
+                <span><strong>Be specific.</strong> Colour, brand, model number — unique details matter.</span>
+              </li>
+              <li style="display:flex;gap:.6rem;font-size:.88rem;">
+                <span aria-hidden="true">🤝</span>
+                <span><strong>Stay safe.</strong> Meet in a public place when arranging returns.</span>
+              </li>
+              <li style="display:flex;gap:.6rem;font-size:.88rem;">
+                <span aria-hidden="true">✅</span>
+                <span><strong>Mark returned.</strong> Once reunited, update your post from your dashboard.</span>
+              </li>
+            </ul>
+
+            <hr style="margin:1.25rem 0;border:none;border-top:1px solid var(--border);" />
+
+            <p style="font-size:.82rem;color:var(--text-muted);line-height:1.6;">
+              Found posts do <strong>not</strong> require a matching lost report. If you found something
+              and want to return it, post it here!
+            </p>
+          </div>
+        </aside>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-logo">🔍 Returnly</div>
+          <p>A community lost-and-found platform built on kindness, trust, and the belief that most people are good.</p>
+        </div>
+        <div>
+          <h4>Browse</h4>
+          <ul>
+            <li><a href="lost.html">Lost Items</a></li>
+            <li><a href="found.html">Found Items</a></li>
+            <li><a href="post.html">Post an Item</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Account</h4>
+          <ul>
+            <li><a href="login.html">Sign In</a></li>
+            <li><a href="login.html#signup">Create Account</a></li>
+            <li><a href="dashboard.html">My Dashboard</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span class="current-year"></span> Returnly. Made with ❤️ for communities.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    /* ── Post form page logic ───────────────────────────── */
+    document.addEventListener('DOMContentLoaded', async () => {
+
+      // ── Auth gate ──
+      const { data: { session } } = await sb.auth.getSession();
+      const user = session?.user || null;
+
+      if (!user) {
+        document.getElementById('auth-gate').style.display = '';
+        return; // stop — don't set up the form
+      }
+
+      document.getElementById('post-form-section').style.display = '';
+
+      // ── Pre-fill type from query string ──
+      const urlType = new URLSearchParams(window.location.search).get('type');
+      if (urlType === 'found') {
+        document.getElementById('type-found').checked = true;
+      }
+
+      // ── Set today as default date ──
+      document.getElementById('item-date').valueAsDate = new Date();
+
+      // ── Contact method placeholder update ──
+      document.querySelectorAll('input[name="contact-method"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+          const v = radio.value;
+          const ph = { email: 'you@example.com', phone: '+1 555 000 0000', whatsapp: '+1 555 000 0000' };
+          document.getElementById('contact-value').placeholder = ph[v] || '';
+        });
+      });
+
+      // ── Photo upload & preview ──
+      const uploadArea   = document.getElementById('upload-area');
+      const fileInput    = document.getElementById('item-photo');
+      const preview      = document.getElementById('photo-preview');
+      const placeholder  = document.getElementById('upload-placeholder');
+      const removeBtn    = document.getElementById('remove-photo');
+      let selectedFile   = null;
+
+      uploadArea.addEventListener('click', e => {
+        if (e.target !== removeBtn) fileInput.click();
+      });
+      uploadArea.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') fileInput.click();
+      });
+
+      // Drag and drop
+      uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
+      uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
+      uploadArea.addEventListener('drop', e => {
+        e.preventDefault();
+        uploadArea.classList.remove('drag-over');
+        const file = e.dataTransfer.files[0];
+        if (file) handleFile(file);
+      });
+
+      fileInput.addEventListener('change', () => {
+        if (fileInput.files[0]) handleFile(fileInput.files[0]);
+      });
+
+      removeBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        selectedFile = null;
+        fileInput.value = '';
+        preview.src = '';
+        preview.classList.remove('show');
+        placeholder.style.display = '';
+        removeBtn.style.display = 'none';
+      });
+
+      function handleFile(file) {
+        const maxMB = 5;
+        if (!file.type.startsWith('image/')) {
+          showToast('Please choose an image file (JPG, PNG, WEBP).', 'error'); return;
+        }
+        if (file.size > maxMB * 1024 * 1024) {
+          showToast(`File too large. Max size is ${maxMB} MB.`, 'error'); return;
+        }
+        selectedFile = file;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          preview.src = ev.target.result;
+          preview.classList.add('show');
+          placeholder.style.display = 'none';
+          removeBtn.style.display = '';
+        };
+        reader.readAsDataURL(file);
+      }
+
+      // ── Form validation ──
+      function validate() {
+        let ok = true;
+        const setErr = (id, msg) => {
+          const el = document.getElementById(id);
+          if (el) { el.textContent = msg; el.classList.toggle('show', !!msg); }
+        };
+        const setInputErr = (id, msg) => {
+          const el = document.getElementById(id);
+          if (el) el.classList.toggle('error', !!msg);
+        };
+
+        // Clear previous
+        ['title-err','category-err','area-err','date-err','contact-err','photo-err'].forEach(id => setErr(id, ''));
+        ['item-title','item-category','item-area','item-date','contact-value'].forEach(id => setInputErr(id, ''));
+
+        const title    = document.getElementById('item-title').value.trim();
+        const category = document.getElementById('item-category').value;
+        const area     = document.getElementById('item-area').value.trim();
+        const date     = document.getElementById('item-date').value;
+        const contact  = document.getElementById('contact-value').value.trim();
+
+        if (!title)    { setErr('title-err', 'Item name is required.'); setInputErr('item-title', true); ok = false; }
+        if (!category) { setErr('category-err', 'Please choose a category.'); setInputErr('item-category', true); ok = false; }
+        if (!area)     { setErr('area-err', 'Area is required.'); setInputErr('item-area', true); ok = false; }
+        if (!date)     { setErr('date-err', 'Date is required.'); setInputErr('item-date', true); ok = false; }
+        if (!contact)  { setErr('contact-err', 'Contact info is required.'); setInputErr('contact-value', true); ok = false; }
+
+        return ok;
+      }
+
+      // ── Form submit ──
+      document.getElementById('post-form').addEventListener('submit', async e => {
+        e.preventDefault();
+        if (!validate()) return;
+
+        const btn     = document.getElementById('submit-btn');
+        const errGlobal = document.getElementById('form-error-global');
+        errGlobal.style.display = 'none';
+
+        btn.disabled = true;
+        btn.textContent = '⏳ Posting…';
+
+        try {
+          const type        = document.querySelector('input[name="item-type"]:checked').value;
+          const title       = document.getElementById('item-title').value.trim();
+          const category    = document.getElementById('item-category').value;
+          const description = document.getElementById('item-description').value.trim();
+          const area        = document.getElementById('item-area').value.trim();
+          const item_date   = document.getElementById('item-date').value;
+          const contact_method = document.querySelector('input[name="contact-method"]:checked').value;
+          const contact_value  = document.getElementById('contact-value').value.trim();
+
+          let image_url = null;
+
+          // Upload photo if provided
+          if (selectedFile) {
+            btn.textContent = '📸 Uploading photo…';
+            const ext      = selectedFile.name.split('.').pop();
+            const fileName = `${user.id}/${Date.now()}.${ext}`;
+
+            const { data: uploadData, error: uploadErr } = await sb.storage
+              .from('item-photos')
+              .upload(fileName, selectedFile, { cacheControl: '3600', upsert: false });
+
+            if (uploadErr) {
+              throw new Error(`Photo upload failed: ${uploadErr.message}`);
+            }
+
+            const targetPath = (uploadData && uploadData.path) ? uploadData.path : fileName;
+            const { data: urlData } = sb.storage
+              .from('item-photos')
+              .getPublicUrl(targetPath);
+
+            image_url = urlData?.publicUrl || null;
+            if (!image_url) {
+              throw new Error('Photo uploaded, but could not retrieve public URL. Check storage permissions.');
+            }
+          }
+
+          btn.textContent = '💾 Saving…';
+
+          // Insert into items table
+          const { error: insertErr } = await sb.from('items').insert([{
+            user_id: user.id,
+            type, title, category, description, image_url,
+            area, item_date, contact_method, contact_value,
+            status: 'open'
+          }]);
+
+          if (insertErr) throw new Error(insertErr.message);
+
+          showToast('Item posted successfully! 🎉', 'success');
+          setTimeout(() => window.location.href = 'dashboard.html', 1200);
+
+        } catch (err) {
+          console.error(err);
+          const msg = err.message || 'Something went wrong. Please try again.';
+          errGlobal.textContent = msg;
+          errGlobal.style.display = '';
+          errGlobal.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          showToast(msg, 'error');
+          btn.disabled = false;
+          btn.textContent = '🚀 Post Item';
+        }
+      });
+
+    });
+  </script>
+</body>
+</html>

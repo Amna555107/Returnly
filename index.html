@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Returnly — A community lost-and-found platform. Report lost items, post found items, and help reunite people with what matters most." />
+  <title>Returnly — Community Lost & Found</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ══ NAVBAR ══════════════════════════════════════════════ -->
+  <header class="navbar" id="navbar" role="banner">
+    <div class="container nav-inner">
+
+      <!-- Logo -->
+      <a href="index.html" class="nav-logo" aria-label="Returnly home">
+        <span class="logo-icon" aria-hidden="true">🔍</span>
+        Returnly
+      </a>
+
+      <!-- Desktop nav links -->
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="index.html">Home</a>
+        <a href="lost.html">Lost Items</a>
+        <a href="found.html">Found Items</a>
+        <a href="dashboard.html" id="nav-dashboard-link" style="display:none">Dashboard</a>
+      </nav>
+
+      <!-- Desktop actions -->
+      <div class="nav-actions">
+        <a href="post.html" class="btn btn-outline btn-sm">+ Post Item</a>
+        <a href="login.html" class="btn btn-primary btn-sm" id="nav-login-btn">Sign In</a>
+        <button class="btn btn-ghost btn-sm" id="nav-logout-btn" data-action="logout" style="display:none">Sign Out</button>
+      </div>
+
+      <!-- Hamburger (mobile) -->
+      <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="nav-drawer">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <nav class="nav-drawer" id="nav-drawer" aria-label="Mobile navigation">
+    <a href="index.html">🏠 Home</a>
+    <a href="lost.html">🔍 Lost Items</a>
+    <a href="found.html">🎉 Found Items</a>
+    <a href="dashboard.html" id="drawer-dashboard" style="display:none">📋 Dashboard</a>
+    <hr />
+    <a href="post.html">✏️ Post an Item</a>
+    <a href="login.html" id="drawer-login">🔑 Sign In</a>
+    <a href="#" id="drawer-logout" data-action="logout" style="display:none">👋 Sign Out</a>
+  </nav>
+
+  <!-- ══ HERO ════════════════════════════════════════════════ -->
+  <main id="main-content">
+  <section class="hero" aria-label="Hero banner">
+
+    <!-- Background video -->
+    <video
+      class="hero-video"
+      autoplay muted loop playsinline
+      poster="assets/hero-poster.jpg"
+      aria-hidden="true"
+      preload="metadata"
+    >
+      <source src="assets/hero.mp4" type="video/mp4" />
+    </video>
+
+    <!-- Dark gradient overlay -->
+    <div class="hero-overlay" aria-hidden="true"></div>
+
+    <!-- Content -->
+    <div class="hero-content">
+      <div class="hero-eyebrow" aria-label="Community-powered">
+        <span>✨</span> Community-powered lost &amp; found
+      </div>
+
+      <h1 class="hero-title">
+        Lost something?<br>
+        Let's <span class="accent">bring it back.</span>
+      </h1>
+
+      <p class="hero-sub">
+        Returnly connects people who've lost something with kind strangers
+        who've found it. Simple, free, and built on trust.
+      </p>
+
+      <div class="hero-actions">
+        <a href="lost.html" class="btn btn-accent btn-lg" aria-label="Report a lost item">
+          🔍 I Lost Something
+        </a>
+        <a href="post.html?type=found" class="btn btn-primary btn-lg" aria-label="Post a found item">
+          🎉 I Found Something
+        </a>
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="scroll-indicator" aria-hidden="true">
+      <div class="scroll-mouse">
+        <div class="scroll-wheel"></div>
+      </div>
+      <span>Scroll</span>
+    </div>
+
+  </section>
+
+  <!-- ══ STATS STRIP ═════════════════════════════════════════ -->
+  <section class="stats-strip" aria-label="Platform statistics">
+    <div class="container">
+      <div class="stats-grid">
+        <div>
+          <div class="stat-num" id="stat-items">—</div>
+          <div class="stat-label">Items Posted</div>
+        </div>
+        <div>
+          <div class="stat-num" id="stat-returned">—</div>
+          <div class="stat-label">Happy Reunions</div>
+        </div>
+        <div>
+          <div class="stat-num">Free</div>
+          <div class="stat-label">Always &amp; Forever</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ HOW IT WORKS ════════════════════════════════════════ -->
+  <section class="section" aria-labelledby="how-heading">
+    <div class="container text-center">
+      <div class="section-label reveal">🗺️ How it works</div>
+      <h2 class="section-title reveal" id="how-heading">Three simple steps</h2>
+      <p class="section-sub reveal">No sign-up needed to browse. Post an item in under 2 minutes.</p>
+
+      <div class="steps-grid">
+
+        <div class="step-card reveal">
+          <div class="step-num" aria-hidden="true">1</div>
+          <div class="step-icon" aria-hidden="true">📝</div>
+          <h3>Post Your Item</h3>
+          <p>Lost or found something? Create a post with a photo, brief description, and the neighbourhood — never a full address.</p>
+        </div>
+
+        <div class="step-card reveal">
+          <div class="step-num" aria-hidden="true">2</div>
+          <div class="step-icon" aria-hidden="true">🤝</div>
+          <h3>Community Connects</h3>
+          <p>Others browse recent posts. Someone who recognises your item can reach out using the contact method you chose.</p>
+        </div>
+
+        <div class="step-card reveal">
+          <div class="step-num" aria-hidden="true">3</div>
+          <div class="step-icon" aria-hidden="true">🎊</div>
+          <h3>Mark as Returned</h3>
+          <p>Once you've got your item back, mark it returned. It inspires the community and keeps listings accurate.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ RECENT ITEMS ═════════════════════════════════════════ -->
+  <section class="section" style="background:var(--bg-card);padding-top:4rem;padding-bottom:4rem;" aria-labelledby="recent-heading">
+    <div class="container">
+      <div class="flex justify-between items-center mb-2 reveal" style="flex-wrap:wrap;gap:.75rem;">
+        <div>
+          <div class="section-label">📋 Latest posts</div>
+          <h2 id="recent-heading">Recent Items</h2>
+        </div>
+        <a href="lost.html" class="btn btn-outline">View all →</a>
+      </div>
+
+      <!-- Items grid — populated by JS -->
+      <div class="grid-auto" id="recent-items-grid" role="list" aria-label="Recent items">
+        <!-- Loading state -->
+        <div class="loading-wrap" style="grid-column:1/-1">
+          <div class="spinner"></div>
+          <p>Loading recent items…</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ ORIGIN STORY ═════════════════════════════════════════ -->
+  <section class="section" aria-labelledby="origin-heading">
+    <div class="container">
+      <div class="origin-section reveal">
+        <div class="origin-layout">
+          <div class="origin-content">
+            <div class="origin-label">Our Story</div>
+            <h2 id="origin-heading">Built after losing a cat 🐱</h2>
+            <p>
+              Returnly was born from a very personal moment of panic. Our founder, Amna,
+              woke up one morning and found that her cat, Berbal, was missing from home.
+              She searched the whole neighbourhood, but she couldn't find him, and she felt
+              sad and helpless.
+            </p>
+            <blockquote class="origin-quote">
+              "What I needed was a simple place where the whole community could help, and where anyone who found something could let the owner know."
+            </blockquote>
+            <p>
+              Berbal was returned by someone who had mistakenly taken him, thinking he was their
+              own cat. Amna was lucky, and she wants everyone to have that chance. Returnly is that
+              notice board, just online and open to everyone. Because no one should have to search alone.
+            </p>
+            <a href="post.html" class="btn btn-accent mt-3">Post an Item Now</a>
+          </div>
+          <div class="origin-card">
+            <img src="assets/berbal.jpeg" alt="Berbal, Amna's cat" loading="lazy" class="origin-img" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SAFETY NOTE ══════════════════════════════════════════ -->
+  <section class="section-sm" aria-label="Safety information">
+    <div class="container">
+      <div class="card reveal" style="padding:1.75rem;display:flex;gap:1.25rem;align-items:flex-start;border-left:4px solid var(--teal);">
+        <span style="font-size:2rem;flex-shrink:0;" aria-hidden="true">🛡️</span>
+        <div>
+          <h3 style="margin-bottom:.35rem;">Your safety matters</h3>
+          <p style="color:var(--text-muted);font-size:.93rem;">
+            Returnly never asks for or displays full home addresses. We only show the area
+            or neighbourhood where an item was lost or found. Contact details are only
+            visible to signed-in users, keeping spammers out and your privacy intact.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  </main><!-- /#main-content -->
+
+  <!-- ══ FOOTER ═══════════════════════════════════════════════ -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-logo">🔍 Returnly</div>
+          <p>A community lost-and-found platform built on kindness, trust, and the belief that most people are good.</p>
+        </div>
+        <div>
+          <h4>Browse</h4>
+          <ul>
+            <li><a href="lost.html">Lost Items</a></li>
+            <li><a href="found.html">Found Items</a></li>
+            <li><a href="post.html">Post an Item</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Account</h4>
+          <ul>
+            <li><a href="login.html">Sign In</a></li>
+            <li><a href="login.html#signup">Create Account</a></li>
+            <li><a href="dashboard.html">My Dashboard</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© <span class="current-year"></span> Returnly. Made with ❤️ for communities.</span>
+        <span>Built with <a href="https://supabase.com" target="_blank" rel="noopener">Supabase</a></span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ══ DETAIL MODAL ══════════════════════════════════════════ -->
+  <div class="modal-overlay" id="item-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <span id="modal-badge" class="badge"></span>
+          <h2 id="modal-title" style="margin-top:.4rem;font-size:1.3rem;"></h2>
+          <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.5rem;">
+            <span id="modal-category" style="font-size:.88rem;color:var(--text-muted);"></span>
+          </div>
+        </div>
+        <button class="modal-close" id="modal-close" aria-label="Close">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <img id="modal-img" class="modal-img" src="" alt="" />
+
+        <div class="modal-detail">
+          <span class="modal-detail-icon" aria-hidden="true">📍</span>
+          <span id="modal-area"></span>
+        </div>
+        <div class="modal-detail">
+          <span class="modal-detail-icon" aria-hidden="true">📅</span>
+          <span id="modal-date"></span>
+        </div>
+        <div class="modal-detail" style="margin-top:.75rem;align-items:flex-start;">
+          <span class="modal-detail-icon" aria-hidden="true">📝</span>
+          <p id="modal-desc" style="line-height:1.7;"></p>
+        </div>
+
+        <!-- Contact section -->
+        <div id="modal-contact-wrap" style="margin-top:1.25rem;padding:1rem;background:var(--bg);border-radius:var(--radius-md);">
+          <strong style="font-size:.85rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;">Contact</strong>
+          <div id="modal-contact-info" style="margin-top:.5rem;display:none;"></div>
+          <div id="modal-login-prompt" style="margin-top:.5rem;">
+            <p style="font-size:.9rem;color:var(--text-muted);">
+              <a href="login.html" style="color:var(--teal);font-weight:600;">Sign in</a>
+              to view contact information.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="display:flex;justify-content:space-between;align-items:center;">
+        <div id="modal-owner-actions" style="display:none;gap:.5rem;align-items:center;">
+          <button class="btn btn-outline btn-sm" id="modal-edit-btn">✏️ Edit</button>
+          <button class="btn btn-danger btn-sm" id="modal-delete-btn">🗑️ Delete</button>
+        </div>
+        <button class="btn btn-ghost" onclick="closeModal()" style="margin-left:auto;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/supabase.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    /* ── Index-page specific JS ───────────────────────────── */
+    document.addEventListener('DOMContentLoaded', async () => {
+      const grid = document.getElementById('recent-items-grid');
+
+      // Load recent items (both lost and found, latest 6)
+      try {
+        const { data: items, error } = await sb
+          .from('items')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(6);
+
+        if (error) throw error;
+        renderItems(items, grid, 'Be the first to post a lost or found item!');
+      } catch (err) {
+        console.error(err);
+        grid.innerHTML = `
+          <div class="empty-state" style="grid-column:1/-1">
+            <div class="empty-icon">🌐</div>
+            <h3>Can't load items</h3>
+            <p>Make sure Supabase is configured in <code>js/supabase.js</code>.</p>
+          </div>`;
+      }
+
+      // Load stats
+      try {
+        const [{ count: total }, { count: returned }] = await Promise.all([
+          sb.from('items').select('*', { count: 'exact', head: true }),
+          sb.from('items').select('*', { count: 'exact', head: true }).eq('status', 'returned'),
+        ]);
+        const statItems    = document.getElementById('stat-items');
+        const statReturned = document.getElementById('stat-returned');
+        if (statItems)    statItems.textContent    = (total || 0).toLocaleString();
+        if (statReturned) statReturned.textContent = (returned || 0).toLocaleString();
+      } catch (_) { /* stats are decorative, fail silently */ }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Sign in or create a Returnly account to post lost and found items in your community." />
+  <title>Sign In — Returnly</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <header class="navbar" id="navbar" role="banner">
+    <div class="container nav-inner">
+      <a href="index.html" class="nav-logo" aria-label="Returnly home">
+        <span class="logo-icon" aria-hidden="true">🔍</span>Returnly
+      </a>
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="index.html">Home</a>
+        <a href="lost.html">Lost Items</a>
+        <a href="found.html">Found Items</a>
+        <a href="dashboard.html" id="nav-dashboard-link" style="display:none">Dashboard</a>
+      </nav>
+      <div class="nav-actions">
+        <a href="post.html" class="btn btn-outline btn-sm">+ Post Item</a>
+        <a href="login.html" class="btn btn-primary btn-sm active" id="nav-login-btn">Sign In</a>
+        <button class="btn btn-ghost btn-sm" id="nav-logout-btn" data-action="logout" style="display:none">Sign Out</button>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="nav-drawer">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <nav class="nav-drawer" id="nav-drawer" aria-label="Mobile navigation">
+    <a href="index.html">🏠 Home</a>
+    <a href="lost.html">🔍 Lost Items</a>
+    <a href="found.html">🎉 Found Items</a>
+    <a href="dashboard.html" id="drawer-dashboard" style="display:none">📋 Dashboard</a>
+    <hr />
+    <a href="post.html">✏️ Post an Item</a>
+    <a href="login.html" id="drawer-login" class="active">🔑 Sign In</a>
+    <a href="#" id="drawer-logout" data-action="logout" style="display:none">👋 Sign Out</a>
+  </nav>
+
+  <main class="auth-page" id="main-content">
+    <div class="auth-card">
+
+      <!-- Logo -->
+      <a href="index.html" class="auth-logo" aria-label="Returnly home">
+        <span style="background:var(--teal);width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-size:1.1rem;" aria-hidden="true">🔍</span>
+        Returnly
+      </a>
+
+      <!-- Tab switcher -->
+      <div style="display:flex;border-bottom:2px solid var(--border);margin-bottom:1.75rem;" role="tablist">
+        <button
+          class="tab-btn"
+          id="tab-login"
+          role="tab"
+          aria-selected="true"
+          aria-controls="panel-login"
+          style="flex:1;padding:.65rem;font-weight:600;font-size:.95rem;font-family:var(--font-body);border:none;background:none;cursor:pointer;border-bottom:2px solid var(--teal);color:var(--teal);margin-bottom:-2px;transition:all .2s ease;"
+        >Sign In</button>
+        <button
+          class="tab-btn"
+          id="tab-signup"
+          role="tab"
+          aria-selected="false"
+          aria-controls="panel-signup"
+          style="flex:1;padding:.65rem;font-weight:600;font-size:.95rem;font-family:var(--font-body);border:none;background:none;cursor:pointer;color:var(--text-muted);transition:all .2s ease;"
+        >Create Account</button>
+      </div>
+
+      <!-- Sign In Panel -->
+      <div id="panel-login" role="tabpanel" aria-labelledby="tab-login">
+        <form id="login-form" novalidate>
+          <div class="form-group">
+            <label class="form-label" for="login-email">Email address <span class="req" aria-hidden="true">*</span></label>
+            <input class="form-input" type="email" id="login-email" autocomplete="email" placeholder="you@example.com" required />
+            <span class="form-error" id="login-email-err" role="alert"></span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="login-password">Password <span class="req" aria-hidden="true">*</span></label>
+            <input class="form-input" type="password" id="login-password" autocomplete="current-password" placeholder="Your password" required />
+            <span class="form-error" id="login-password-err" role="alert"></span>
+          </div>
+
+          <div id="login-error" role="alert" style="display:none;padding:.75rem 1rem;background:rgba(239,68,68,.08);border-radius:var(--radius-sm);color:#DC2626;font-size:.88rem;margin-bottom:1rem;border:1px solid rgba(239,68,68,.2);"></div>
+
+          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;" id="login-btn">
+            Sign In
+          </button>
+        </form>
+      </div>
+
+      <!-- Sign Up Panel -->
+      <div id="panel-signup" role="tabpanel" aria-labelledby="tab-signup" style="display:none;">
+        <form id="signup-form" novalidate>
+          <div class="form-group">
+            <label class="form-label" for="signup-name">Full name <span class="req" aria-hidden="true">*</span></label>
+            <input class="form-input" type="text" id="signup-name" autocomplete="name" placeholder="Your name" required />
+            <span class="form-error" id="signup-name-err" role="alert"></span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="signup-email">Email address <span class="req" aria-hidden="true">*</span></label>
+            <input class="form-input" type="email" id="signup-email" autocomplete="email" placeholder="you@example.com" required />
+            <span class="form-error" id="signup-email-err" role="alert"></span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="signup-password">Password <span class="req" aria-hidden="true">*</span></label>
+            <input class="form-input" type="password" id="signup-password" autocomplete="new-password" placeholder="At least 8 characters" required />
+            <span class="form-hint">Must be at least 8 characters.</span>
+            <span class="form-error" id="signup-password-err" role="alert"></span>
+          </div>
+
+          <div id="signup-error" role="alert" style="display:none;padding:.75rem 1rem;background:rgba(239,68,68,.08);border-radius:var(--radius-sm);color:#DC2626;font-size:.88rem;margin-bottom:1rem;border:1px solid rgba(239,68,68,.2);"></div>
+
+          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;" id="signup-btn">
+            Create Account
+          </button>
+
+          <p style="font-size:.82rem;color:var(--text-muted);text-align:center;margin-top:1rem;line-height:1.6;">
+            By creating an account you agree to use Returnly responsibly
+            and never share others' personal information without consent.
+          </p>
+        </form>
+      </div>
+
+      <!-- Back link -->
+      <p style="text-align:center;margin-top:1.5rem;font-size:.88rem;color:var(--text-muted);">
+        <a href="index.html" style="color:var(--teal);">← Back to home</a>
+      </p>
+
+    </div>
+  </main>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    /* ── Auth page logic ─────────────────────────────────── */
+    document.addEventListener('DOMContentLoaded', async () => {
+      // If already signed in, redirect to dashboard
+      const { data: { session } } = await sb.auth.getSession();
+      if (session?.user) { window.location.href = 'dashboard.html'; return; }
+
+      // Open #signup tab if URL hash says so
+      if (window.location.hash === '#signup') switchTab('signup');
+
+      // ── Tab switching ──
+      document.getElementById('tab-login').addEventListener('click', () => switchTab('login'));
+      document.getElementById('tab-signup').addEventListener('click', () => switchTab('signup'));
+
+      function switchTab(which) {
+        const isLogin = which === 'login';
+        document.getElementById('panel-login').style.display  = isLogin ? '' : 'none';
+        document.getElementById('panel-signup').style.display = isLogin ? 'none' : '';
+        document.getElementById('tab-login').setAttribute('aria-selected', isLogin);
+        document.getElementById('tab-signup').setAttribute('aria-selected', !isLogin);
+        document.getElementById('tab-login').style.borderBottom  = isLogin ? '2px solid var(--teal)' : 'none';
+        document.getElementById('tab-login').style.color         = isLogin ? 'var(--teal)' : 'var(--text-muted)';
+        document.getElementById('tab-signup').style.borderBottom = isLogin ? 'none' : '2px solid var(--teal)';
+        document.getElementById('tab-signup').style.color        = isLogin ? 'var(--text-muted)' : 'var(--teal)';
+      }
+
+      // ── Sign In ──
+      document.getElementById('login-form').addEventListener('submit', async e => {
+        e.preventDefault();
+        const email    = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
+        const errBox   = document.getElementById('login-error');
+        const btn      = document.getElementById('login-btn');
+
+        // Clear errors
+        errBox.style.display = 'none';
+        setLoading(btn, true, 'Signing in…');
+
+        // Basic validation
+        if (!email || !password) {
+          errBox.textContent = 'Please fill in all fields.';
+          errBox.style.display = '';
+          setLoading(btn, false, 'Sign In');
+          return;
+        }
+
+        const { data, error } = await sb.auth.signInWithPassword({ email, password });
+
+        if (error) {
+          errBox.textContent = error.message || 'Sign in failed. Please check your credentials.';
+          errBox.style.display = '';
+          setLoading(btn, false, 'Sign In');
+          return;
+        }
+
+        showToast('Welcome back! 👋', 'success');
+        // Redirect to intended page or dashboard
+        const redirect = new URLSearchParams(window.location.search).get('redirect') || 'dashboard.html';
+        setTimeout(() => window.location.href = redirect, 800);
+      });
+
+      // ── Sign Up ──
+      document.getElementById('signup-form').addEventListener('submit', async e => {
+        e.preventDefault();
+        const name     = document.getElementById('signup-name').value.trim();
+        const email    = document.getElementById('signup-email').value.trim();
+        const password = document.getElementById('signup-password').value;
+        const errBox   = document.getElementById('signup-error');
+        const btn      = document.getElementById('signup-btn');
+
+        errBox.style.display = 'none';
+
+        // Validation
+        if (!name || !email || !password) {
+          errBox.textContent = 'Please fill in all fields.';
+          errBox.style.display = ''; return;
+        }
+        if (password.length < 8) {
+          errBox.textContent = 'Password must be at least 8 characters.';
+          errBox.style.display = ''; return;
+        }
+
+        setLoading(btn, true, 'Creating account…');
+
+        const { data, error } = await sb.auth.signUp({
+          email,
+          password,
+          options: { data: { full_name: name } }
+        });
+
+        if (error) {
+          errBox.textContent = error.message || 'Sign up failed. Please try again.';
+          errBox.style.display = '';
+          setLoading(btn, false, 'Create Account');
+          return;
+        }
+
+        // If email confirmation is enabled in Supabase, show a message
+        if (data.user && !data.session) {
+          errBox.style.background = 'rgba(15,118,110,.08)';
+          errBox.style.color = 'var(--teal-dark)';
+          errBox.style.borderColor = 'rgba(15,118,110,.2)';
+          errBox.textContent = '✅ Account created! Check your email to confirm, then sign in.';
+          errBox.style.display = '';
+          setLoading(btn, false, 'Create Account');
+          return;
+        }
+
+        showToast('Welcome to Returnly! 🎉', 'success');
+        setTimeout(() => window.location.href = 'dashboard.html', 800);
+      });
+
+      // Helper: loading state for button
+      function setLoading(btn, loading, text) {
+        btn.disabled = loading;
+        btn.textContent = text;
+        btn.style.opacity = loading ? '.7' : '1';
+      }
+    });
+  </script>
+</body>
+</html>
